@@ -1,25 +1,23 @@
 const { GraphQLScalarType, Kind } = require("graphql");
 
-const Events = []
-
 module.exports = {
-	Date: new GraphQLScalarType({
+	DateTime: new GraphQLScalarType({
 		// @todo: Do proper time conversions.
-		name: "Date",
-		description: "Date custom scalar type",
+		name: "DateTime",
+		description: "DateTime represented in ISO 8601 format.",
 		parseValue(value) {
-			return new Date(value); // value from the client
+			return new Date(value).toISOString(); // value from the client
 		},
 		serialize(value) {
-			return new Date(value).getTime(); // value sent to the client
+			return new Date(value).toISOString(); // value sent to the client
 		},
 		parseLiteral(ast) {
-			return new Date(ast.value).getTime();
+			return new Date(ast.value).toISOString();
 		}
     }),
     Text: new GraphQLScalarType({
 		name: "Text",
-		description: "Text custom scalar type",
+		description: "Text is a *string* of characters.",
 		parseValue(value) {
 			return value;
 		},
@@ -35,7 +33,7 @@ module.exports = {
     }),
     Number: new GraphQLScalarType({
 		name: "Number",
-		description: "Number custom scalar type",
+		description: "Number is an *integer* number with no decimals.",
 		parseValue(value) {
 			return parseInt(value);
 		},
@@ -51,7 +49,7 @@ module.exports = {
     }),
     Decimal: new GraphQLScalarType({
 		name: "Decimal",
-		description: "Decimal custom scalar type",
+		description: "Decimal is a number with decimal places. (A *float*)",
 		parseValue(value) {
 			return parseFloat(value);
 		},
@@ -67,7 +65,7 @@ module.exports = {
 	}),
 	TrueFalse: new GraphQLScalarType({
 		name: "TrueFalse",
-		description: "TrueFalse custom scalar type",
+		description: "TrueFalse is a *boolean* type that presents a state of True or False.",
 		parseValue(value) {
 			return value;
 		},

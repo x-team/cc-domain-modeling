@@ -1,7 +1,7 @@
 """
-Date represented in ISO xxxx format.
+Date represented in ISO 8601 format.
 """
-scalar Date
+scalar DateTime
 
 """
 Text is a *string* of characters.
@@ -23,6 +23,9 @@ TrueFalse is a boolean type that presents a state of True or False.
 """
 scalar TrueFalse
 
+"""
+DayOfWeek is an enumerated list of days of the week.
+"""
 enum DayOfWeek {
 	SUNDAY
 	MONDAY
@@ -33,6 +36,9 @@ enum DayOfWeek {
 	SATURDAY
 }
 
+"""
+Month is an enumerated list of months in a year.
+"""
 enum Month {
 	JANUARY
 	FEBRUARY
@@ -58,7 +64,7 @@ type Error {
 }
 
 """
-Generic filter.
+PaginationFilter is a generic filter for paginating through many records.
 """
 input PaginationFilter {
     totalItems: Number
@@ -66,7 +72,10 @@ input PaginationFilter {
     itemsPerPage: Number
 }
 
+"""
+DateRangeInput is a generic filter for specifying a start and end date/time range.
+"""
 input DateRangeInput {
-    start: Date!
-    end: Date!
+    start: DateTime!
+    end: DateTime!
 }

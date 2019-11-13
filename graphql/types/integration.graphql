@@ -1,78 +1,114 @@
+"""
+ServiceUnitOfMeasureOption is an enumerated lists for the types of unit of measure.
+"""
 enum ServiceUnitOfMeasureOption {
     DISTANCE
     DURATION
     ITEM
 }
 
-enum FixedMearueOption {
+"""
+FixedMeasureOption is used to fix particular parts of a service based on a trade agreement.
+@see CC-25
+"""
+enum FixedMeasureOption {
     QUANTITY
     RATE
     QUANTITY_RATE
 }
 
+"""
+ServiceUnitOfMeasure is used in inputs and models to represent a complete unit of measure including quantity and rate.
+"""
 type ServiceUnitOfMeasure {
     type: ServiceUnitOfMeasureOption
     rate: Decimal
     quantity: Decimal
 }
 
+"""
+SupplierServiceType represents services as retrieved from the Supplier API.
+@see CC-25
+"""
 type SupplierServiceType {
     id: ID!
     name: Text!
     uom: ServiceUnitOfMeasure!
     tradeAgreement: TrueFalse
-    fixedMeasure: FixedMearueOption
+    fixedMeasure: FixedMeasureOption
 }
 
 """
-Gets the services for a given service provider.
-Gets the services for a given client.
+FetchServiceTypesInput is used to pass provider and client IDs to the Supplier API when fetching a list of services.
+@see CC-25
 """
 input FetchServiceTypesInput {
     serviceProviderID: ID!
     clientID: ID!
 }
 
+"""
+FetchServiceTypesPayload contains the services queried from the Supplier API.
+"""
 type FetchServiceTypesPayload {
     serviceTypes: [SupplierServiceType]!
     error: Error
 }
 
-# /Service Types ---------------------------------------------
-
-type ServiceClients {
+"""
+ServiceClient represents a client for which a service can be scheduled.
+@see CC-25, InVision Designs
+"""
+type ServiceClient {
     id: ID!
     displayName: Text!
     address: Text
 }
 
+"""
+FetchServiceClientsInput specifies the provider ID to the Supplier API when fetching a list of clients.
+"""
 input FetchServiceClientsInput {
     providerID: ID!
 }
 
+"""
+FetchServiceClientsPayload contains the clients queried from the Supplier API.
+"""
 type FetchServiceClientsPayload {
-    clients: [ServiceClients]!
+    clients: [ServiceClient]!
     error: Error
 }
 
-# /Service Clients ---------------------------------------------
-
-type ServiceCareworkers {
+"""
+ServiceCareworker represents a careworker that can be assigned to a service.
+@see CC-25, InVision Designs
+"""
+type ServiceCareworker {
     id: ID!
     displayName: Text!
 }
 
+"""
+FetchServiceCareworkersInput specifies the provider ID to the Supplier API when fetching a list of careworkers.
+"""
 input FetchServiceCareworkersInput {
     providerID: ID!
 }
 
+"""
+FetchServiceCareworkersPayload contains the careworkers queried from the Supplier API.
+"""
 type FetchServiceCareworkersPayload {
-    careworkers: [ServiceCareworkers]!
+    careworkers: [ServiceCareworker]!
     error: Error
 }
 
-# /Service Careworkers ---------------------------------------------
-
+"""
+ServiceStatusOption is an enumerated list for possible statusses of a scheduled service.
+@todo Needs clarification.
+@see CC-25
+"""
 enum ServiceStatusOption {
     OPEN # Scheduled?
     PENDING
@@ -83,18 +119,27 @@ enum ServiceStatusOption {
     COMPLETED # ?
 }
 
+"""
+UnitOfMeasureInput is provided when creating or updating a scheduled service.
+"""
 input UnitOfMeasureInput {
     type: ServiceUnitOfMeasureOption
     quantity: Decimal
     rate: Decimal
 }
 
+"""
+UnitOfMeasure represents the Unit of Measure including quantity and rate assigned to a ServiceRecord.
+"""
 type UnitOfMeasure {
     type: ServiceUnitOfMeasureOption
     quantity: Decimal
     rate: Decimal
 }
 
+"""
+ScheduleServiceRecurrenceInput represents options passed to create or update recurring services.
+"""
 input ScheduleServiceRecurrenceInput {
     """
     Frequency represented as ISO 8601 Duration.
@@ -104,11 +149,14 @@ input ScheduleServiceRecurrenceInput {
     byMonth: [Month]!
     byMonthDay: [Number]!
     repeatCount: Number
-    startDate: Date!
-    endDate: Date
-    exceptDate: [Date]!  # Get dates from Services API.
+    startDate: DateTime!
+    endDate: DateTime
+    exceptDate: [DateTime]!  # Get dates from Services API. CC-22
 }
 
+"""
+ScheduleServiceRecurrence represents the recurrence pattern assigned to a ServiceRecord.
+"""
 type ScheduleServiceRecurrence {
     """
     Frequency represented as ISO 8601 Duration.
@@ -118,12 +166,13 @@ type ScheduleServiceRecurrence {
     byMonth: [Month]!
     byMonthDay: [Number]!
     repeatCount: Number
-    startDate: Date!
-    endDate: Date
-    exceptDate: [Date]!  # Get dates from Services API.
+    startDate: DateTime!
+    endDate: DateTime
+    exceptDate: [DateTime]!  # Get dates from Services API. CC-22
 }
 
 """
+ScheduleServiceInput represents all the fields needed to schedule a new ServiceRecord (service instance).
 @see CC-25
 """
 input ScheduleServiceInput {
@@ -131,14 +180,16 @@ input ScheduleServiceInput {
     serviceID: ID!
     careworkerID: ID!
     uom: UnitOfMeasureInput!
-    startDate: Date!
-    endDate: Date!
+    startDate: DateTime!
+    endDate: DateTime!
     addionalInformation: Text
     location: Text
     recurrence: ScheduleServiceRecurrenceInput
 }
 
 """
+UpdateScheduledServiceInput represents all the fields needed to update a scheduled ServiceRecord.
+Note: Client ID omitted to restrict certain behaviours.
 @see CC-26
 """
 input UpdateScheduledServiceInput {
@@ -147,8 +198,8 @@ input UpdateScheduledServiceInput {
     careworkerID: ID
     status: ServiceStatusOption
     uom: UnitOfMeasureInput
-    startDate: Date
-    endDate: Date
+    startDate: DateTime
+    endDate: DateTime
     addionalInformation: Text
     location: Text
     recurrence: ScheduleServiceRecurrenceInput
@@ -156,7 +207,7 @@ input UpdateScheduledServiceInput {
 
 
 """
-Persisted Service
+ServiceRecord represents the complete data model for a scheduled service.
 @model
 """
 type ServiceRecord {
@@ -166,19 +217,24 @@ type ServiceRecord {
     serviceID: ID!
     careworkerID: ID!
     uom: UnitOfMeasure
-    startDate: Date!
-    endDate: Date!
+    startDate: DateTime!
+    endDate: DateTime!
     addionalInformation: Text
     location: Text
     recurrence: ScheduleServiceRecurrence
 }
 
-
+"""
+ScheduleServicePayload contains the payload for a particular service record that was created or updated.
+"""
 type ScheduleServicePayload {
     service: ServiceRecord
     error: Error
 }
 
+"""
+ServiceFilter can be used to filer the list of services queried.
+"""
 input ServiceFilter {
     status: ServiceStatusOption
     dateRange: DateRangeInput
@@ -186,16 +242,25 @@ input ServiceFilter {
     careworkerID: ID
 }
 
+"""
+FetchScheduledServicesInput are the options passed when retrieving services. Can optionally filter and paginate results.
+"""
 input FetchScheduledServicesInput {
     providerID: ID!
     serviceFilter: ServiceFilter
     pagination: PaginationFilter
 }
 
+"""
+FetchScheduledServiceInput fetches a particular scheduled service.
+"""
 input FetchScheduledServiceInput {
     serviceRecordID: ID!
 }
 
+"""
+FetchScheduleServicesPayload contains the services retrieved from the API. Use filters to restrict results.
+"""
 type FetchScheduleServicesPayload {
     services: [ServiceRecord]!
     error: Error
@@ -220,7 +285,16 @@ type Query {
     """
     fetchServiceCareworkers(input: FetchServiceCareworkersInput): FetchServiceCareworkersPayload
 
+    """
+    Fetches a list of scheduled services from the API.
+
+    Services can be represented on a calendar or in a billing view.
+    """
     fetchScheduledServices(input: FetchScheduledServicesInput): FetchScheduleServicesPayload
+
+    """
+    Fetches the detail of a particular scheduled service.
+    """
     fetchScheduledService(input: FetchScheduledServiceInput): FetchScheduleServicesPayload
 }
 
