@@ -1,0 +1,72 @@
+"""
+Date represented in ISO xxxx format.
+"""
+scalar Date
+
+"""
+Text is a *string* of characters.
+"""
+scalar Text
+
+"""
+Number is an *integer* number with no decimals.
+"""
+scalar Number
+
+"""
+Decimal is a number with decimal places.
+"""
+scalar Decimal
+
+"""
+TrueFalse is a boolean type that presents a state of True or False.
+"""
+scalar TrueFalse
+
+enum DayOfWeek {
+	SUNDAY
+	MONDAY
+	TUESDAY
+	WEDNESDAY
+	THURSDAY
+	FRIDAY
+	SATURDAY
+}
+
+enum Month {
+	JANUARY
+	FEBRUARY
+	MARCH
+	APRIL
+	MAY
+	JUNE
+	JULY
+	AUGUST
+	SEPTEMBER
+	OCTOBER
+	NOVEMBER
+	DECEMBER
+}
+
+"""
+Generic Error type.
+"""
+type Error {
+    message: Text!
+    type: Text
+    code: Number
+}
+
+"""
+Generic filter.
+"""
+input PaginationFilter {
+    totalItems: Number
+    page: Number
+    itemsPerPage: Number
+}
+
+input DateRangeInput {
+    start: Date!
+    end: Date!
+}

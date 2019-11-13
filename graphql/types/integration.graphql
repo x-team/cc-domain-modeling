@@ -1,0 +1,237 @@
+enum ServiceUnitOfMeasureOption {
+    DISTANCE
+    DURATION
+    ITEM
+}
+
+enum FixedMearueOption {
+    QUANTITY
+    RATE
+    QUANTITY_RATE
+}
+
+type ServiceUnitOfMeasure {
+    type: ServiceUnitOfMeasureOption
+    rate: Decimal
+    quantity: Decimal
+}
+
+type SupplierServiceType {
+    id: ID!
+    name: Text!
+    uom: ServiceUnitOfMeasure!
+    tradeAgreement: TrueFalse
+    fixedMeasure: FixedMearueOption
+}
+
+"""
+Gets the services for a given service provider.
+Gets the services for a given client.
+"""
+input FetchServiceTypesInput {
+    serviceProviderID: ID!
+    clientID: ID!
+}
+
+type FetchServiceTypesPayload {
+    serviceTypes: [SupplierServiceType]!
+    error: Error
+}
+
+# /Service Types ---------------------------------------------
+
+type ServiceClients {
+    id: ID!
+    displayName: Text!
+    address: Text
+}
+
+input FetchServiceClientsInput {
+    providerID: ID!
+}
+
+type FetchServiceClientsPayload {
+    clients: [ServiceClients]!
+    error: Error
+}
+
+# /Service Clients ---------------------------------------------
+
+type ServiceCareworkers {
+    id: ID!
+    displayName: Text!
+}
+
+input FetchServiceCareworkersInput {
+    providerID: ID!
+}
+
+type FetchServiceCareworkersPayload {
+    careworkers: [ServiceCareworkers]!
+    error: Error
+}
+
+# /Service Careworkers ---------------------------------------------
+
+enum ServiceStatusOption {
+    OPEN # Scheduled?
+    PENDING
+    REJECTED
+    INVOICED
+    PAID
+    CANCELLED
+    COMPLETED # ?
+}
+
+input UnitOfMeasureInput {
+    type: ServiceUnitOfMeasureOption
+    quantity: Decimal
+    rate: Decimal
+}
+
+type UnitOfMeasure {
+    type: ServiceUnitOfMeasureOption
+    quantity: Decimal
+    rate: Decimal
+}
+
+input ScheduleServiceRecurrenceInput {
+    """
+    Frequency represented as ISO 8601 Duration.
+    """
+    fequency: Text!
+    byDay: [DayOfWeek]!
+    byMonth: [Month]!
+    byMonthDay: [Number]!
+    repeatCount: Number
+    startDate: Date!
+    endDate: Date
+    exceptDate: [Date]!  # Get dates from Services API.
+}
+
+type ScheduleServiceRecurrence {
+    """
+    Frequency represented as ISO 8601 Duration.
+    """
+    fequency: Text!
+    byDay: [DayOfWeek]!
+    byMonth: [Month]!
+    byMonthDay: [Number]!
+    repeatCount: Number
+    startDate: Date!
+    endDate: Date
+    exceptDate: [Date]!  # Get dates from Services API.
+}
+
+"""
+@see CC-25
+"""
+input ScheduleServiceInput {
+    clientID: ID!
+    serviceID: ID!
+    careworkerID: ID!
+    uom: UnitOfMeasureInput!
+    startDate: Date!
+    endDate: Date!
+    addionalInformation: Text
+    location: Text
+    recurrence: ScheduleServiceRecurrenceInput
+}
+
+"""
+@see CC-26
+"""
+input UpdateScheduledServiceInput {
+    serviceRecordID: ID!
+    serviceID: ID
+    careworkerID: ID
+    status: ServiceStatusOption
+    uom: UnitOfMeasureInput
+    startDate: Date
+    endDate: Date
+    addionalInformation: Text
+    location: Text
+    recurrence: ScheduleServiceRecurrenceInput
+}
+
+
+"""
+Persisted Service
+@model
+"""
+type ServiceRecord {
+    id: ID!
+    status: ServiceStatusOption!
+    clientID: ID!
+    serviceID: ID!
+    careworkerID: ID!
+    uom: UnitOfMeasure
+    startDate: Date!
+    endDate: Date!
+    addionalInformation: Text
+    location: Text
+    recurrence: ScheduleServiceRecurrence
+}
+
+
+type ScheduleServicePayload {
+    service: ServiceRecord
+    error: Error
+}
+
+input ServiceFilter {
+    status: ServiceStatusOption
+    dateRange: DateRangeInput
+    clientID: ID
+    careworkerID: ID
+}
+
+input FetchScheduledServicesInput {
+    providerID: ID!
+    serviceFilter: ServiceFilter
+    pagination: PaginationFilter
+}
+
+input FetchScheduledServiceInput {
+    serviceRecordID: ID!
+}
+
+type FetchScheduleServicesPayload {
+    services: [ServiceRecord]!
+    error: Error
+}
+
+type Query {
+    """
+    Fetches available service types from the Supplier API.
+    @see CC-25
+    """
+    fetchServiceTypes(input: FetchServiceTypesInput): FetchServiceTypesPayload
+
+    """
+    Fetches clients from Supplier API.
+    @see CC-25
+    """
+    fetchServiceClients(input: FetchServiceClientsInput): FetchServiceClientsPayload
+
+    """
+    Fetches careworkers from Supplier API.
+    @see CC-25
+    """
+    fetchServiceCareworkers(input: FetchServiceCareworkersInput): FetchServiceCareworkersPayload
+
+    fetchScheduledServices(input: FetchScheduledServicesInput): FetchScheduleServicesPayload
+    fetchScheduledService(input: FetchScheduledServiceInput): FetchScheduleServicesPayload
+}
+
+type Mutation {
+    """
+    @see CC-25
+    """
+    scheduleService(input: ScheduleServiceInput): ScheduleServicePayload
+
+    """
+    @see CC-26
+    """
+    updateScheduledService(input: UpdateScheduledServiceInput): ScheduleServicePayload
+}
