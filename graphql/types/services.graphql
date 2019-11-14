@@ -156,6 +156,30 @@ input ScheduleServiceRecurrenceInput {
 
 """
 ScheduleServiceRecurrence represents the recurrence pattern assigned to a ServiceRecord.
+
+@see https://schema.org/Schedule
+@see https://schema.org/eventSchedule
+@see https://schema.org/Duration
+
+### Examples:
+**Recur every 10 days**
+P10D
+
+**Recur every weekday**
+P1W
+byDay[MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
+
+**Recur on 23 of evey 1 month**
+P1M
+byMonthDay[23]
+
+**Recur every 4th wednesday of every 1 month**
+P1M4W
+byDay[WEDNESDAY]
+
+**Recur on Wednesday and Friday of every 1 week**
+P1W
+byDay[WEDNESDAY,FRIDAY]
 """
 type ScheduleServiceRecurrence {
     """
@@ -260,6 +284,7 @@ input FetchScheduledServiceInput {
 
 """
 FetchScheduleServicesPayload contains the services retrieved from the API. Use filters to restrict results.
+@todo Add Pagination type.
 """
 type FetchScheduleServicesPayload {
     services: [ServiceRecord]!
